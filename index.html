@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aerobuddyy: Pink Study Buddy 🐰</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        /* 1. CSS: TEMA & LAYOUT */
+        :root {
+            --pink-soft: #ff9a9e;
+            --pink-bold: #ff007f;
+            --bg-color: #fff5f7;
+            --white-glass: rgba(255, 255, 255, 0.7);
+        }
+
+        body {
+            margin: 0; padding: 0; font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, var(--pink-soft), #fecfef);
+            height: 100vh; overflow: hidden; color: #4a4a4a;
+        }
+
+        /* Navigasi Sidebar */
+        .sidebar {
+            position: fixed; left: 0; top: 0; width: 80px; height: 100%;
+            background: var(--white-glass); backdrop-filter: blur(10px);
+            display: flex; flex-direction: column; align-items: center; padding-top: 40px; gap: 30px;
+        }
+
+        .nav-icon { font-size: 2rem; cursor: pointer; transition: 0.3s; opacity: 0.6; }
+        .nav-icon:hover, .nav-icon.active { opacity: 1; transform: scale(1.2); }
+
+        /* Status Bar (Level & Mission) */
+        .status-header {
+            position: fixed; top: 20px; left: 100px; right: 20px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+
+        .level-circle {
+            width: 60px; height: 60px; background: white; border: 3px solid var(--pink-bold);
+            border-radius: 50%; display: flex; flex-direction: column; justify-content: center;
+            align-items: center; font-size: 10px; font-weight: bold;
+        }
+
+        /* Timer Center (Tengah Skrin) */
+        .main-content {
+            height: 100vh; display: flex; justify-content: center; align-items: center;
+        }
+
+        .page { display: none; text-align: center; width: 100%; max-width: 600px; }
+        .page.active { display: block; }
+
+        .timer-container {
+            width: 280px; height: 280px; background: var(--white-glass);
+            border: 8px solid white; border-radius: 50%;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            box-shadow: 0 15px 35px rgba(255, 117, 140, 0.3);
+            position: relative; margin: 0 auto;
+        }
+
+        #timer-display { font-size: 55px; font-weight: bold; color: var(--pink-bold); margin: 0; }
+
+        /* Buttons */
+        .btn {
+            background: var(--pink-bold); color: white; border: none;
+            padding: 12px 30px; border-radius: 50px; font-weight: bold;
+            cursor: pointer; margin: 10px; transition: 0.3s;
+        }
+        .btn-stop { background: #ff4757; }
+        .btn:hover { transform: scale(1.05); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+
+        /* Quiz UI */
+        .quiz-card { background: white; padding: 20px; border-radius: 20px; margin-top: 20px; }
+        .option-btn {
+            display: block; width: 100%; padding: 10px; margin: 10px 0;
+            border: 2px solid var(--pink-soft); border-radius: 10px; background: none;
+            cursor: pointer; font-family: inherit;
+        }
+        .option-btn:hover { background: var(--pink-soft); color: white; }
+
+        /* Notifikasi Bulat Level Up */
+        .pop-notif {
+            position: absolute; width: 60px; height: 60px; background: #ffd700;
+            border-radius: 50%; display: none; justify-content: center; align-items: center;
+            font-size: 10px; font-weight: bold; animation: popUp 1s ease-out;
+        }
+        @keyframes popUp { 0% { transform: scale(0); } 100% { transform: scale(1.5); opacity: 0; } }
+
+    </style>
+</head>
+<body>
+
+    <div class="status-header">
+        <div class="level-circle">
+            <span>LVL</span>
+            <b id="lvl-txt">1</b>
+            <div id="pop-up" class="pop-notif">UP!</div>
+        </div>
+        <div style="background: white; padding: 10px 20px; border-radius: 50px; border: 2px solid var(--pink-bold);">
+            <small>Next Alarm:</small> <input type="time" id="alarm-set" style="border:none; color:var(--pink-bold); font-weight:bold; outline:none;">
+        </div>
+    </div>
+
+    <div class="sidebar">
+        <div class="nav-icon active" onclick="showPage('timer-page', this)">⏰</div>
+        <div class="nav-icon" onclick="showPage('game-page', this)">🎮</div>
+        <div class="nav-icon" onclick="showPage('stats-page', this)">📊</div>
+    </div>
+
+    <div class="main-content">
+        
+        <div id="timer-page" class="page active">
+            <div style="font-size: 50px;">🐰</div>
+            <h3 id="mode-txt" style="color: var(--pink-bold);">Ready to Focus?</h3>
+            <div class="timer-container">
+                <p id="timer-display">25:00</p>
+                <span id="streak-txt" style="font-size: 14px;">🔥 Streak: 0</span>
+            </div>
+            <div style="margin-top: 20px;">
+                <button class="btn" onclick="startTimer()">START</button>
+                <button class="btn btn-stop" onclick="stopTimer()">STOP</button>
+            </div>
+        </div>
+
+        <div id="game-page" class="page">
+            <h2 style="color: var(--pink-bold);">Subject Challenge 🐻‍❄️</h2>
+            <div id="subject-menu">
+                <button class="btn" onclick="startQuiz('bio')">Biology</button>
+                <button class="btn" onclick="startQuiz('chem')">Chemistry</button>
+                <button class="btn" onclick="startQuiz('math')">Math</button>
+                <button class="btn" onclick="startQuiz('fiz')">Physics</button>
+            </div>
+            <div id="quiz-area" style="display:none;" class="quiz-card">
+                <h4 id="q-text">Soalan</h4>
+                <div id="options"></div>
+                <button onclick="exitQuiz()" style="margin-top:10px; background:none; border:none; color:grey; cursor:pointer;">Back</button>
+            </div>
+        </div>
+
+        <div id="stats-page" class="page">
+            <div class="quiz-card">
+                <h2>Your Progress 📈</h2>
+                <p>Level: <span id="stat-lvl">1</span></p>
+                <p>Total XP: <span id="stat-xp">0</span></p>
+                <p>Streak: <span id="stat-streak">0</span></p>
+                <button class="btn" onclick="localStorage.clear(); location.reload();">Reset All</button>
+            </div>
+        </div>
+
+    </div>
+    <div id="alarm-reminder" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 154, 158, 0.9); z-index: 2000; flex-direction: column; justify-content: center; align-items: center; text-align: center; backdrop-filter: blur(8px);">
+    <div style="font-size: 80px; animation: bounce 1s infinite;">🐰</div>
+    <h1 style="color: white; font-size: 2.5rem; text-shadow: 2px 2px 10px rgba(0,0,0,0.1);">Masa Belajar Dah Tiba!</h1>
+    <p style="color: white; font-size: 1.2rem; margin-bottom: 30px;">ESP32 tengah vibrate tu, jom mula sekarang! ✨</p>
+    <button class="btn" onclick="dismissAlarm()" style="background: white; color: var(--pink-bold); padding: 15px 40px; font-size: 1.2rem;">SAYA SEDIA! ✨</button>
+</div>
+
+    <script>
+        // 4. JAVASCRIPT: LOGIK APP
+        
+        // --- SETTINGS ESP32 (Ganti dengan IP ESP kau) ---
+        const ESP_IP = "192.168.1.XX"; 
+        function triggerESP(path) { fetch(`http://${ESP_IP}/${path}`).catch(() => console.log("ESP Offline")); }
+
+        // --- DATA & STATE ---
+        let studyTime = 1500; // 25 min
+        let restTime = 300;   // 5 min
+        let currentTime = studyTime;
+        let isStudyMode = true;
+        let timer = null;
+        let streak = parseInt(localStorage.getItem('streak')) || 0;
+        let xp = parseInt(localStorage.getItem('xp')) || 0;
+        let level = Math.floor(xp / 100) + 1;
+
+        // --- TIMER LOGIC ---
+        function startTimer() {
+            if (timer) return;
+            // Stop vibrate alarm bila start belajar
+            triggerESP("alarmStop"); 
+            
+            timer = setInterval(() => {
+                currentTime--;
+                updateTimerDisplay();
+                if (currentTime <= 0) {
+                    clearInterval(timer);
+                    timer = null;
+                    handleTimerEnd();
+                }
+            }, 1000);
+        }
+
+        function stopTimer() {
+            clearInterval(timer);
+            timer = null;
+            document.getElementById('mode-txt').innerText = "Timer Paused";
+        }
+
+        function updateTimerDisplay() {
+            let m = Math.floor(currentTime / 60);
+            let s = currentTime % 60;
+            document.getElementById('timer-display').innerText = `${m}:${s < 10 ? '0' : ''}${s}`;
+        }
+
+        function handleTimerEnd() {
+            if (isStudyMode) {
+                // Selesai Study
+                streak++;
+                addXP(50);
+                triggerESP("restStart"); // Hidupkan Humidifier + DFPlayer Lagu Rehat
+                alert("Masa Study Tamat! 💨 Humidifier On.");
+                isStudyMode = false;
+                currentTime = restTime;
+                document.getElementById('mode-txt').innerText = "Resting Time 🌸";
+                startTimer(); // Terus start rest timer
+            } else {
+                // Selesai Rest
+                triggerESP("restStop"); // Matikan Humidifier
+                alert("Rehat Tamat! Sedia untuk sesi seterusnya?");
+                isStudyMode = true;
+                currentTime = studyTime;
+                document.getElementById('mode-txt').innerText = "Ready to Focus?";
+            }
+            localStorage.setItem('streak', streak);
+            updateUI();
+        }
+
+        // --- ALARM SYSTEM DENGAN REMINDER ---
+setInterval(() => {
+    const alarmInput = document.getElementById('alarm-set');
+    const alarmVal = alarmInput.value;
+    
+    if (!alarmVal) return;
+    
+    const now = new Date();
+    const timeNow = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+    
+    // Bila jam sekarang sama dengan jam set alarm
+    if (alarmVal === timeNow && !timer) {
+        showAlarmReminder();
+        triggerESP("alarmStart"); // Panggil ESP32 Vibrate + Audio
+        
+        // Reset input supaya tak trigger berulang kali pada minit yang sama
+        alarmInput.value = ""; 
+    }
+}, 1000);
+
+function showAlarmReminder() {
+    const reminder = document.getElementById('alarm-reminder');
+    reminder.style.display = "flex";
+}
+
+function dismissAlarm() {
+    // Tutup kotak reminder
+    document.getElementById('alarm-reminder').style.display = "none";
+    
+    // Stop ESP32 daripada vibrate/bunyi
+    triggerESP("alarmStop");
+    
+    // Automatik tukar ke page timer dan fokus
+    showPage('timer-page', document.querySelector('.nav-icon'));
+    
+    // Terus start timer belajar 25 minit
+    startTimer();
+}
+
+       
+    
+    // --- DATABASE SOALAN (DAH FIX TYPO) ---
+    const questions = {
+        bio: [
+            {q: "Unit asas kehidupan?", a: ["Sel", "Tisu", "Organ"], c: "Sel"},
+            {q: "Fotosintesis menghasilkan apa?", a:["Api","Tanah","Glucosa","Daun"], c:"Glucosa"},
+            {q: "Organ menghasilkan insulin?", a:["Jantung","Hati","Mata","Pancrease"], c:"Pancrease"},
+            {q: "Organ terbesar?", a:["Jantung","Kulit","Tangan","Kepala"], c:"Kulit"}
+        ],
+        chem: [
+            {q: "Simbol bagi Oksigen?", a: ["O", "N", "H"], c: "O"},
+            {q: "Simbol bagi Emas?", a:["NH3","Ag","Au","Mg"], c:"Au"},
+            {q: "Simbol bagi Air?", a:["H2O","NH3","CH3","HCl"], c:"H2O"}, // Tukar 'a' kepada 'c'
+            {q: "Simbol bagi Etanol?", a:["CH3","C2H5OH","KMNO4","NaOH"], c:"C2H5OH"} // Tukar 'a' kepada 'c'
+        ],
+        math: [
+            {q: "5 x 5?", a: ["20", "25", "30"], c: "25"},{q:"3X + 2 = 5 ?", a: ["2","5","1","0"], c:"1"},{q:"2 +2 ?", a:["4","2","9"], c:"4"},
+            {q:"4X + 5 = 10 ?", a:["30","5/4","9"], c:"5/4"}
+        ],
+        fiz: [
+        {q: "Unit bagi Daya?", a: ["Newton", "Watt", "Joule"], c: "Newton"},{q:"Unit bagi kuasa?", a:["Watt","Newton","joule","Ohm"], c:"Watt"},
+        {q:"F=Ma formula apa ?", a:["daya","Pecutan","Prinsip Bernouli"], c:"daya"}
+        ]
+    };
+
+    function startQuiz(sub) {
+        document.getElementById('subject-menu').style.display = 'none';
+        document.getElementById('quiz-area').style.display = 'block';
+        loadQuestion(sub);
+    }
+
+   function loadQuestion(sub) {
+        const subQuestions = questions[sub];
+        
+        // Pilih soalan secara rawak
+        const qData = subQuestions[Math.floor(Math.random() * subQuestions.length)];
+        
+        document.getElementById('q-text').innerText = qData.q;
+        const optDiv = document.getElementById('options');
+        optDiv.innerHTML = ""; // Bersihkan butang lama
+
+        qData.a.forEach(opt => {
+            const b = document.createElement('button');
+            b.className = "option-btn";
+            b.innerText = opt;
+            b.onclick = () => {
+                if (opt.trim() === qData.c.trim()) {
+                    alert("Betul! +10 XP ✨");
+                    addXP(10);
+                    // PANGGIL SOALAN SETERUSNYA SECARA TERUS
+                    loadQuestion(sub); 
+                } else {
+                    alert("Salah! Jawapan betul: " + qData.c);
+                    // TETAP TERUSKAN KE SOALAN SETERUSNYA
+                    loadQuestion(sub);
+                }
+            };
+            optDiv.appendChild(b);
+        });
+
+        // Tambah butang "QUIT" kecil kat bawah pilihan supaya boleh keluar bila-bila masa
+        const quitBtn = document.createElement('button');
+        quitBtn.innerText = "Tamat Kuiz";
+        quitBtn.style = "margin-top:20px; background:none; border:none; color:#ff4757; cursor:pointer; font-size:0.8rem; text-decoration:underline;";
+        quitBtn.onclick = () => exitQuiz();
+        optDiv.appendChild(quitBtn);
+    }
+
+    function exitQuiz() {
+        // Fungsi ini hanya dipanggil bila tekan butang "Tamat Kuiz"
+        document.getElementById('subject-menu').style.display = 'block';
+        document.getElementById('quiz-area').style.display = 'none';
+    }
+    // --- STATS & XP SYSTEM ---
+    function addXP(amount) {
+        xp += amount;
+        localStorage.setItem('xp', xp);
+        let newLvl = Math.floor(xp / 100) + 1;
+        if (newLvl > level) {
+            level = newLvl;
+            showLevelUpAnim();
+        }
+        updateUI();
+    }
+
+    function showLevelUpAnim() {
+        const pop = document.getElementById('pop-up');
+        pop.style.display = "flex";
+        setTimeout(() => pop.style.display = "none", 1500);
+    }
+
+    function updateUI() {
+        document.getElementById('lvl-txt').innerText = level;
+        document.getElementById('streak-txt').innerText = "🔥 Streak: " + streak;
+        document.getElementById('stat-lvl').innerText = level;
+        document.getElementById('stat-xp').innerText = xp;
+        document.getElementById('stat-streak').innerText = streak;
+    }
+
+    function showPage(id, btn) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        document.querySelectorAll('.nav-icon').forEach(i => i.classList.remove('active'));
+        btn.classList.add('active');
+    }
+
+    // Panggil updateUI masa mula untuk display data lama
+    updateUI();
+</script>
