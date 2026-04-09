@@ -235,8 +235,8 @@ h2, h3, #mode-txt, #timer-display, small {
 
         // --- DATA & STATE ---
         // Gantikan bahagian data state awak dengan ini sahaja
-let studyTime = 1500; // Untuk test (asal 1500)
-let restTime = 300;  // Untuk test (asal 300)
+let studyTime = 20; // Untuk test (asal 1500)
+let restTime = 50;  // Untuk test (asal 300)
 let currentTime = studyTime;
 let isStudyMode = true;
 let timer = null;
@@ -390,19 +390,19 @@ function dismissAlarm() {
     // 4. Terus start timer belajar
     startTimer();
 }
- // 1. Pastikan fungsi panggil ESP ini betul sintaksisnya
 function turnOn() {
-    fetch(`http://${ESP_IP}/mistOn`) // Guna backtick (`) dan path mistOn
-        .then(response => console.log("Mist Maker: ON"))
-        .catch(error => console.log("Error: " + error));
+  triggerESP("mistOn");
+    .then(response => response.text())
+    .then(data => console.log(data))
+    .catch(error => console.log(error));
 }
 
 function turnOff() {
-    fetch(`http://${ESP_IP}/mistOff`) // Guna backtick (`) dan path mistOff
-        .then(response => console.log("Mist Maker: OFF"))
-        .catch(error => console.log("Error: " + error));
+triggerESP("mistOff");
+    .then(response => response.text())
+    .then(data => console.log(data))
+    .catch(error => console.log(error));
 }
-       
     
     // --- DATABASE SOALAN (DAH FIX TYPO) ---
     const questions = {
