@@ -390,18 +390,17 @@ function dismissAlarm() {
     // 4. Terus start timer belajar
     startTimer();
 }
+function triggerESP(path) {
+  const img = new Image();
+  img.src = 'http://${ESP_IP}/${path}?t=${Date.now()}';
+}
+
 function turnOn() {
   triggerESP("mistOn");
-    .then(response => response.text())
-    .then(data => console.log(data))
-    .catch(error => console.log(error));
 }
 
 function turnOff() {
-triggerESP("mistOff");
-    .then(response => response.text())
-    .then(data => console.log(data))
-    .catch(error => console.log(error));
+  triggerESP("mistOff");
 }
     
     // --- DATABASE SOALAN (DAH FIX TYPO) ---
