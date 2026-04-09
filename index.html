@@ -6,19 +6,57 @@
     <title>Aerobuddyy: Pink Study Buddy 🐰</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <style>
-        /* 1. CSS: TEMA & LAYOUT */
-        :root {
-            --pink-soft: #ff9a9e;
-            --pink-bold: #ff007f;
-            --bg-color: #fff5f7;
-            --white-glass: rgba(255, 255, 255, 0.7);
-        }
+    /* 1. CSS: TEMA & LAYOUT (TUKAR KE BIRU) */
+    :root {
+        --blue-soft: #a2d2ff;  /* Biru Pastel */
+        --blue-bold: #00b4d8;  /* Biru Terang */
+        --blue-dark: #0077b6;  /* Biru Deep untuk text */
+        --bg-color: #f0f9ff;
+        --white-glass: rgba(255, 255, 255, 0.7);
+    }
 
-        body {
-            margin: 0; padding: 0; font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, var(--pink-soft), #fecfef);
-            height: 100vh; overflow: hidden; color: #4a4a4a;
-        }
+    body {
+        margin: 0; padding: 0; font-family: 'Poppins', sans-serif;
+        /* Gradient Biru yang kiut */
+        background: linear-gradient(135deg, #caf0f8, #a2d2ff); 
+        height: 100vh; overflow: hidden; color: #2d5a7a;
+    }
+
+    /* Update Border dan Warna Level */
+    .level-circle {
+        width: 60px; height: 60px; background: white; 
+        border: 3px solid var(--blue-bold); /* Tukar ke biru */
+        border-radius: 50%; display: flex; flex-direction: column; justify-content: center;
+        align-items: center; font-size: 10px; font-weight: bold;
+    }
+
+    /* Update Warna Timer */
+    #timer-display { font-size: 55px; font-weight: bold; color: var(--blue-dark); margin: 0; }
+
+    /* Update Warna Butang */
+    .btn {
+        background: var(--blue-bold); /* Butang jadi biru */
+        color: white; border: none;
+        padding: 12px 30px; border-radius: 50px; font-weight: bold;
+        cursor: pointer; margin: 10px; transition: 0.3s;
+    }
+    
+    /* Hover butang lebih gelap sikit */
+    .btn:hover { transform: scale(1.05); background: var(--blue-dark); }
+
+    /* Update Border Kuiz */
+    .option-btn {
+        display: block; width: 100%; padding: 10px; margin: 10px 0;
+        border: 2px solid var(--blue-soft); /* Border biru cair */
+        border-radius: 10px; background: none;
+        cursor: pointer; font-family: inherit;
+    }
+    .option-btn:hover { background: var(--blue-soft); color: white; }
+
+    /* Update Warna Alarm Set */
+    .status-header div {
+        border: 2px solid var(--blue-bold) !important;
+    }
 
         /* Navigasi Sidebar */
         .sidebar {
@@ -62,22 +100,42 @@
 
         /* Buttons */
         .btn {
-            background: var(--pink-bold); color: white; border: none;
-            padding: 12px 30px; border-radius: 50px; font-weight: bold;
-            cursor: pointer; margin: 10px; transition: 0.3s;
-        }
-        .btn-stop { background: #ff4757; }
-        .btn:hover { transform: scale(1.05); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+    background-color: #00b4d8 !important; /* Biru terang */
+    color: white !important;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 50px;
+    font-weight: bold;
+    cursor: pointer;
+    margin: 10px;
+    transition: 0.3s;
+    display: inline-block;
+}
 
+.btn:hover {
+    background-color: #0077b6 !important; /* Biru gelap sikit bila hover */
+    transform: scale(1.05);
+}
         /* Quiz UI */
         .quiz-card { background: white; padding: 20px; border-radius: 20px; margin-top: 20px; }
-        .option-btn {
-            display: block; width: 100%; padding: 10px; margin: 10px 0;
-            border: 2px solid var(--pink-soft); border-radius: 10px; background: none;
-            cursor: pointer; font-family: inherit;
-        }
-        .option-btn:hover { background: var(--pink-soft); color: white; }
+       .option-btn {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 2px solid #a2d2ff !important;
+    border-radius: 10px;
+    background-color: white;
+    color: #0077b6; /* Warna tulisan biru */
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: 600;
+}
 
+.option-btn:hover {
+    background-color: #a2d2ff !important;
+    color: white !important;
+}
         /* Notifikasi Bulat Level Up */
         .pop-notif {
             position: absolute; width: 60px; height: 60px; background: #ffd700;
@@ -85,6 +143,15 @@
             font-size: 10px; font-weight: bold; animation: popUp 1s ease-out;
         }
         @keyframes popUp { 0% { transform: scale(0); } 100% { transform: scale(1.5); opacity: 0; } }
+        /* Gantikan semua tulisan pink kepada biru */
+h2, h3, #mode-txt, #timer-display, small {
+    color: #0077b6 !important;
+}
+
+/* Kotak input alarm */
+.status-header div {
+    border-color: #00b4d8 !important;
+}
 
     </style>
 </head>
@@ -108,19 +175,24 @@
     </div>
 
     <div class="main-content">
-        
-        <div id="timer-page" class="page active">
-            <div style="font-size: 50px;">🐰</div>
-            <h3 id="mode-txt" style="color: var(--pink-bold);">Ready to Focus?</h3>
-            <div class="timer-container">
-                <p id="timer-display">25:00</p>
-                <span id="streak-txt" style="font-size: 14px;">🔥 Streak: 0</span>
-            </div>
-            <div style="margin-top: 20px;">
-                <button class="btn" onclick="startTimer()">START</button>
-                <button class="btn btn-stop" onclick="stopTimer()">STOP</button>
-            </div>
-        </div>
+
+           <div id="timer-page" class="page active">
+    <div style="font-size: 60px; margin-bottom: 10px;">🐰</div>
+    
+    <h3 id="mode-txt" style="color: var(--blue-dark); margin-bottom: 5px;">Ready to Focus?</h3>
+    
+    <p id="session-count" style="color: #00b4d8; font-weight: bold; margin-bottom: 20px;">Session: 1 / 2</p>
+    
+    <div class="timer-container">
+        <p id="timer-display">25:00</p>
+        <span id="streak-txt" style="font-size: 14px; color: #666;">🔥 Streak: 0</span>
+    </div>
+
+    <div style="margin-top: 30px;">
+        <button class="btn" onclick="startTimer()">START</button>
+        <button class="btn btn-stop" onclick="stopTimer()">STOP</button>
+    </div>
+</div>
 
         <div id="game-page" class="page">
             <h2 style="color: var(--pink-bold);">Subject Challenge 🐻‍❄️</h2>
@@ -148,124 +220,168 @@
         </div>
 
     </div>
-    <div id="alarm-reminder" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 154, 158, 0.9); z-index: 2000; flex-direction: column; justify-content: center; align-items: center; text-align: center; backdrop-filter: blur(8px);">
+   <div id="alarm-reminder" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(162, 210, 255, 0.95); z-index: 2000; flex-direction: column; justify-content: center; align-items: center; text-align: center; backdrop-filter: blur(8px);">
     <div style="font-size: 80px; animation: bounce 1s infinite;">🐰</div>
-    <h1 style="color: white; font-size: 2.5rem; text-shadow: 2px 2px 10px rgba(0,0,0,0.1);">Masa Belajar Dah Tiba!</h1>
-    <p style="color: white; font-size: 1.2rem; margin-bottom: 30px;">ESP32 tengah vibrate tu, jom mula sekarang! ✨</p>
-    <button class="btn" onclick="dismissAlarm()" style="background: white; color: var(--pink-bold); padding: 15px 40px; font-size: 1.2rem;">SAYA SEDIA! ✨</button>
+    <h1 style="color: #0077b6; font-size: 2.5rem; text-shadow: 2px 2px 10px rgba(0,0,0,0.1);">Masa Belajar Dah Tiba!</h1>
+    <p style="color: #2d5a7a; font-size: 1.2rem; margin-bottom: 30px;">Jom mula sekarang! ✨</p>
+    <button class="btn" onclick="dismissAlarm()" style="background: white !important; color: #00b4d8 !important; padding: 15px 40px; font-size: 1.2rem;">SAYA SEDIA! ✨</button>
 </div>
-
     <script>
-        // 4. JAVASCRIPT: LOGIK APP
-        
-        // --- SETTINGS ESP32 (Ganti dengan IP ESP kau) ---
-        const ESP_IP = "172.20.10.12"; 
-        function triggerESP(path) { fetch(`http://${ESP_IP}/${path}`).catch(() => console.log("ESP Offline")); }
+    const ESP_IP = "172.20.10.12";
 
-        // --- DATA & STATE ---
-        let studyTime = 1500; // 25 min
-        let restTime = 300;   // 5 min
-        let currentTime = studyTime;
-        let isStudyMode = true;
-        let timer = null;
-        let streak = parseInt(localStorage.getItem('streak')) || 0;
-        let xp = parseInt(localStorage.getItem('xp')) || 0;
-        let level = Math.floor(xp / 100) + 1;
+    function triggerESP(path) {
+        fetch(`http://${ESP_IP}/${path}`)
+            .then(response => response.text())
+            .then(data => console.log("ESP Response:", data))
+            .catch(error => console.log("ESP Offline / Error:", error));
+    }
 
-        // --- TIMER LOGIC ---
-        function startTimer() {
-            if (timer) return;
-            // Stop vibrate alarm bila start belajar
-            triggerESP("alarmStop"); 
-            
-            timer = setInterval(() => {
-                currentTime--;
-                updateTimerDisplay();
-                if (currentTime <= 0) {
-                    clearInterval(timer);
-                    timer = null;
-                    handleTimerEnd();
-                }
-            }, 1000);
+    let studyTime = 1500;
+    let restTime = 300;
+    let currentTime = studyTime;
+    let isStudyMode = true;
+    let timer = null;
+    let currentSession = 1;
+    let streak = parseInt(localStorage.getItem('streak')) || 0;
+    let xp = parseInt(localStorage.getItem('xp')) || 0;
+    let level = Math.floor(xp / 100) + 1;
+
+    function updateTimerDisplay() {
+        const mins = Math.floor(currentTime / 60);
+        const secs = currentTime % 60;
+        document.getElementById('timer-display').innerText =
+            `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+    }
+
+    function startTimer() {
+        if (timer !== null) return;
+
+        triggerESP("alarmStop");
+        document.getElementById('mode-txt').innerText = isStudyMode ? "Focus Mode ✍️" : "Resting Time 🌸";
+
+        timer = setInterval(() => {
+            currentTime--;
+            updateTimerDisplay();
+
+            if (!isStudyMode) {
+                checkRestSchedule(currentTime);
+            }
+
+            if (currentTime <= 0) {
+                clearInterval(timer);
+                timer = null;
+                handleTimerEnd();
+            }
+        }, 1000);
+    }
+
+    function stopTimer() {
+        clearInterval(timer);
+        timer = null;
+    }
+
+    function checkRestSchedule(timeLeft) {
+        if (timeLeft === 299 || timeLeft === 14) {
+            triggerESP("mistOn");
+            triggerESP("playAudio2");
         }
 
-        function stopTimer() {
-            clearInterval(timer);
-            timer = null;
-            document.getElementById('mode-txt').innerText = "Timer Paused";
+        if (timeLeft === 270 || timeLeft === 10) {
+            triggerESP("playAudio3");
         }
 
-        function updateTimerDisplay() {
-            let m = Math.floor(currentTime / 60);
-            let s = currentTime % 60;
-            document.getElementById('timer-display').innerText = `${m}:${s < 10 ? '0' : ''}${s}`;
+        if (timeLeft === 60 || timeLeft === 5) {
+            triggerESP("playAudio4");
         }
 
-        function handleTimerEnd() {
-            if (isStudyMode) {
-                // Selesai Study
-                streak++;
-                addXP(50);
-                triggerESP("restStart"); // Hidupkan Humidifier + DFPlayer Lagu Rehat
-                alert("Masa Study Tamat! 💨 Humidifier On.");
-                isStudyMode = false;
-                currentTime = restTime;
-                document.getElementById('mode-txt').innerText = "Resting Time 🌸";
-                startTimer(); // Terus start rest timer
-            } else {
-                // Selesai Rest
-                triggerESP("restStop"); // Matikan Humidifier
-                alert("Rehat Tamat! Sedia untuk sesi seterusnya?");
+        if (currentSession === 2 && timeLeft === 10) {
+            triggerESP("playAudio5");
+        }
+    }
+
+    function handleTimerEnd() {
+        if (isStudyMode) {
+            addXP(50);
+            isStudyMode = false;
+            currentTime = restTime;
+
+            if (currentSession === 2) {
+                triggerESP("playAudio5");
+            }
+
+            document.getElementById('mode-txt').innerText = "Resting Time 🌸";
+            startTimer();
+
+        } else {
+            triggerESP("mistOff");
+            triggerESP("audioStop");
+
+            if (currentSession < 2) {
+                currentSession++;
+                alert("Rehat tamat! Masuk Sesi " + currentSession);
                 isStudyMode = true;
                 currentTime = studyTime;
-                document.getElementById('mode-txt').innerText = "Ready to Focus?";
+                document.getElementById('session-count').innerText = "Session: " + currentSession + " / 2";
+                startTimer();
+            } else {
+                currentSession = 1;
+                streak++;
+                localStorage.setItem('streak', streak);
+                alert("Tahniah! Awak dah siapkan 1 jam Pomodoro! 🏆");
+                isStudyMode = true;
+                currentTime = studyTime;
+                document.getElementById('session-count').innerText = "Session: 1 / 2";
+                updateUI();
             }
-            localStorage.setItem('streak', streak);
-            updateUI();
+        }
+    }
+
+    setInterval(() => {
+        const alarmInput = document.getElementById('alarm-set');
+        if (!alarmInput) return;
+
+        const alarmVal = alarmInput.value;
+        if (!alarmVal) return;
+
+        const now = new Date();
+        const timeNow = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+
+        if (alarmVal === timeNow && !timer) {
+            showAlarmReminder();
+            triggerESP("alarmStart");
+            alarmInput.value = "";
+        }
+    }, 1000);
+
+    function showAlarmReminder() {
+        const reminder = document.getElementById('alarm-reminder');
+        if (reminder) {
+            reminder.style.display = "flex";
+        }
+    }
+
+    function dismissAlarm() {
+        const reminder = document.getElementById('alarm-reminder');
+        if (reminder) {
+            reminder.style.display = "none";
         }
 
-        // --- ALARM SYSTEM DENGAN REMINDER ---
-setInterval(() => {
-    const alarmInput = document.getElementById('alarm-set');
-    const alarmVal = alarmInput.value;
-    
-    if (!alarmVal) return;
-    
-    const now = new Date();
-    const timeNow = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-    
-    // Bila jam sekarang sama dengan jam set alarm
-    if (alarmVal === timeNow && !timer) {
-        showAlarmReminder();
-        triggerESP("alarmStart"); // Panggil ESP32 Vibrate + Audio
-        
-        // Reset input supaya tak trigger berulang kali pada minit yang sama
-        alarmInput.value = ""; 
+        triggerESP("alarmStop");
+
+        const timerIcon = document.querySelector('.nav-icon');
+        showPage('timer-page', timerIcon);
+
+        startTimer();
     }
-}, 1000);
 
-function showAlarmReminder() {
-    const reminder = document.getElementById('alarm-reminder');
-    reminder.style.display = "flex";
-}
+    function turnOn() {
+        triggerESP("mistOn");
+    }
 
-function dismissAlarm() {
-    // Tutup kotak reminder
-    document.getElementById('alarm-reminder').style.display = "none";
-    
-    // Stop ESP32 daripada vibrate/bunyi
-    triggerESP("alarmStop");
-    
-    // Automatik tukar ke page timer dan fokus
-    showPage('timer-page', document.querySelector('.nav-icon'));
-    
-    // Terus start timer belajar 25 minit
-    startTimer();
-}
+    function turnOff() {
+        triggerESP("mistOff");
+    }
 
-       
-    
-    // --- DATABASE SOALAN (DAH FIX TYPO) ---
     const questions = {
         bio: [
             {q: "Unit asas kehidupan?", a: ["Sel", "Tisu", "Organ"], c: "Sel"},
@@ -276,16 +392,19 @@ function dismissAlarm() {
         chem: [
             {q: "Simbol bagi Oksigen?", a: ["O", "N", "H"], c: "O"},
             {q: "Simbol bagi Emas?", a:["NH3","Ag","Au","Mg"], c:"Au"},
-            {q: "Simbol bagi Air?", a:["H2O","NH3","CH3","HCl"], c:"H2O"}, // Tukar 'a' kepada 'c'
-            {q: "Simbol bagi Etanol?", a:["CH3","C2H5OH","KMNO4","NaOH"], c:"C2H5OH"} // Tukar 'a' kepada 'c'
+            {q: "Simbol bagi Air?", a:["H2O","NH3","CH3","HCl"], c:"H2O"},
+            {q: "Simbol bagi Etanol?", a:["CH3","C2H5OH","KMNO4","NaOH"], c:"C2H5OH"}
         ],
         math: [
-            {q: "5 x 5?", a: ["20", "25", "30"], c: "25"},{q:"3X + 2 = 5 ?", a: ["2","5","1","0"], c:"1"},{q:"2 +2 ?", a:["4","2","9"], c:"4"},
-            {q:"4X + 5 = 10 ?", a:["30","5/4","9"], c:"5/4"}
+            {q: "5 x 5?", a: ["20", "25", "30"], c: "25"},
+            {q: "3X + 2 = 5 ?", a: ["2","5","1","0"], c: "1"},
+            {q: "2 + 2 ?", a: ["4","2","9"], c: "4"},
+            {q: "4X + 5 = 10 ?", a: ["30","5/4","9"], c: "5/4"}
         ],
         fiz: [
-        {q: "Unit bagi Daya?", a: ["Newton", "Watt", "Joule"], c: "Newton"},{q:"Unit bagi kuasa?", a:["Watt","Newton","joule","Ohm"], c:"Watt"},
-        {q:"F=Ma formula apa ?", a:["daya","Pecutan","Prinsip Bernouli"], c:"daya"}
+            {q: "Unit bagi Daya?", a: ["Newton", "Watt", "Joule"], c: "Newton"},
+            {q: "Unit bagi kuasa?", a: ["Watt","Newton","joule","Ohm"], c: "Watt"},
+            {q: "F=Ma formula apa ?", a: ["daya","Pecutan","Prinsip Bernouli"], c: "daya"}
         ]
     };
 
@@ -295,15 +414,13 @@ function dismissAlarm() {
         loadQuestion(sub);
     }
 
-   function loadQuestion(sub) {
+    function loadQuestion(sub) {
         const subQuestions = questions[sub];
-        
-        // Pilih soalan secara rawak
         const qData = subQuestions[Math.floor(Math.random() * subQuestions.length)];
-        
+
         document.getElementById('q-text').innerText = qData.q;
         const optDiv = document.getElementById('options');
-        optDiv.innerHTML = ""; // Bersihkan butang lama
+        optDiv.innerHTML = "";
 
         qData.a.forEach(opt => {
             const b = document.createElement('button');
@@ -313,18 +430,15 @@ function dismissAlarm() {
                 if (opt.trim() === qData.c.trim()) {
                     alert("Betul! +10 XP ✨");
                     addXP(10);
-                    // PANGGIL SOALAN SETERUSNYA SECARA TERUS
-                    loadQuestion(sub); 
+                    loadQuestion(sub);
                 } else {
                     alert("Salah! Jawapan betul: " + qData.c);
-                    // TETAP TERUSKAN KE SOALAN SETERUSNYA
                     loadQuestion(sub);
                 }
             };
             optDiv.appendChild(b);
         });
 
-        // Tambah butang "QUIT" kecil kat bawah pilihan supaya boleh keluar bila-bila masa
         const quitBtn = document.createElement('button');
         quitBtn.innerText = "Tamat Kuiz";
         quitBtn.style = "margin-top:20px; background:none; border:none; color:#ff4757; cursor:pointer; font-size:0.8rem; text-decoration:underline;";
@@ -333,11 +447,10 @@ function dismissAlarm() {
     }
 
     function exitQuiz() {
-        // Fungsi ini hanya dipanggil bila tekan butang "Tamat Kuiz"
         document.getElementById('subject-menu').style.display = 'block';
         document.getElementById('quiz-area').style.display = 'none';
     }
-    // --- STATS & XP SYSTEM ---
+
     function addXP(amount) {
         xp += amount;
         localStorage.setItem('xp', xp);
@@ -370,6 +483,6 @@ function dismissAlarm() {
         btn.classList.add('active');
     }
 
-    // Panggil updateUI masa mula untuk display data lama
     updateUI();
+    updateTimerDisplay();
 </script>
