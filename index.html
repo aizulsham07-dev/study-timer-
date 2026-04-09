@@ -227,161 +227,184 @@ h2, h3, #mode-txt, #timer-display, small {
     <button class="btn" onclick="dismissAlarm()" style="background: white !important; color: #00b4d8 !important; padding: 15px 40px; font-size: 1.2rem;">SAYA SEDIA! ✨</button>
 </div>
     <script>
-    const ESP_IP = "172.20.10.12";
+        // 4. JAVASCRIPT: LOGIK APP
+        
+        // --- SETTINGS ESP32 (Ganti dengan IP ESP kau) ---
+        const ESP_IP = "172.20.10.12"; 
+        function triggerESP(path) { fetch(`http://${ESP_IP}/${path}`).catch(() => console.log("ESP Offline")); }
 
-    function triggerESP(path) {
-        fetch(`http://${ESP_IP}/${path}`)
-            .then(response => response.text())
-            .then(data => console.log("ESP Response:", data))
-            .catch(error => console.log("ESP Offline / Error:", error));
-    }
+        // --- DATA & STATE ---
+        // Gantikan bahagian data state awak dengan ini sahaja
+let studyTime = 1500; // Untuk test (asal 1500)
+let restTime = 300;  // Untuk test (asal 300)
+let currentTime = studyTime;
+let isStudyMode = true;
+let timer = null;
+let currentSession = 1; // <--- PASTIKAN ADA BARIS NI
+        let streak = parseInt(localStorage.getItem('streak')) || 0;
+        let xp = parseInt(localStorage.getItem('xp')) || 0;
+        let level = Math.floor(xp / 100) + 1;
 
-    let studyTime = 1500;
-    let restTime = 300;
-    let currentTime = studyTime;
-    let isStudyMode = true;
-    let timer = null;
-    let currentSession = 1;
-    let streak = parseInt(localStorage.getItem('streak')) || 0;
-    let xp = parseInt(localStorage.getItem('xp')) || 0;
-    let level = Math.floor(xp / 100) + 1;
+        // --- TIMER LOGIC ---
+      function updateTimerDisplay() {
+    const mins = Math.floor(currentTime / 60);
+    const secs = currentTime % 60;
+    document.getElementById('timer-display').innerText = 
+        `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+}
 
-    function updateTimerDisplay() {
-        const mins = Math.floor(currentTime / 60);
-        const secs = currentTime % 60;
-        document.getElementById('timer-display').innerText =
-            `${mins}:${secs < 10 ? '0' : ''}${secs}`;
-    }
+function startTimer() {
+    if (timer !== null) return; // Elak timer bertindih
+    
+    triggerESP("alarmStop"); 
+    document.getElementById('mode-txt').innerText = isStudyMode ? "Focus Mode ✍️" : "Resting Time 🌸";
+    
+    timer = setInterval(() => {
+        currentTime--;
+        updateTimerDisplay();
 
-    function startTimer() {
-        if (timer !== null) return;
-
-        triggerESP("alarmStop");
-        document.getElementById('mode-txt').innerText = isStudyMode ? "Focus Mode ✍️" : "Resting Time 🌸";
-
-        timer = setInterval(() => {
-            currentTime--;
-            updateTimerDisplay();
-
-            if (!isStudyMode) {
-                checkRestSchedule(currentTime);
-            }
-
-            if (currentTime <= 0) {
-                clearInterval(timer);
-                timer = null;
-                handleTimerEnd();
-            }
-        }, 1000);
-    }
-
-    function stopTimer() {
-        clearInterval(timer);
-        timer = null;
-    }
-
-    function checkRestSchedule(timeLeft) {
-        if (timeLeft === 299 || timeLeft === 14) {
-            triggerESP("mistOn");
-            triggerESP("playAudio2");
+        // Panggil fungsi check audio/mist maker setiap saat
+        if (!isStudyMode) {
+            checkRestSchedule(currentTime);
         }
 
-        if (timeLeft === 270 || timeLeft === 10) {
-            triggerESP("playAudio3");
-        }
-
-        if (timeLeft === 60 || timeLeft === 5) {
-            triggerESP("playAudio4");
-        }
-
-        if (currentSession === 2 && timeLeft === 10) {
-            triggerESP("playAudio5");
-        }
-    }
-
-    function handleTimerEnd() {
-        if (isStudyMode) {
-            addXP(50);
-            isStudyMode = false;
-            currentTime = restTime;
-
-            if (currentSession === 2) {
-                triggerESP("playAudio5");
-            }
-
-            document.getElementById('mode-txt').innerText = "Resting Time 🌸";
-            startTimer();
-
-        } else {
-            triggerESP("mistOff");
-            triggerESP("audioStop");
-
-            if (currentSession < 2) {
-                currentSession++;
-                alert("Rehat tamat! Masuk Sesi " + currentSession);
-                isStudyMode = true;
-                currentTime = studyTime;
-                document.getElementById('session-count').innerText = "Session: " + currentSession + " / 2";
-                startTimer();
-            } else {
-                currentSession = 1;
-                streak++;
-                localStorage.setItem('streak', streak);
-                alert("Tahniah! Awak dah siapkan 1 jam Pomodoro! 🏆");
-                isStudyMode = true;
-                currentTime = studyTime;
-                document.getElementById('session-count').innerText = "Session: 1 / 2";
-                updateUI();
-            }
-        }
-    }
-
-    setInterval(() => {
-        const alarmInput = document.getElementById('alarm-set');
-        if (!alarmInput) return;
-
-        const alarmVal = alarmInput.value;
-        if (!alarmVal) return;
-
-        const now = new Date();
-        const timeNow = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-
-        if (alarmVal === timeNow && !timer) {
-            showAlarmReminder();
-            triggerESP("alarmStart");
-            alarmInput.value = "";
+        if (currentTime <= 0) {
+            clearInterval(timer);
+            timer = null;
+            handleTimerEnd();
         }
     }, 1000);
+}
 
-    function showAlarmReminder() {
-        const reminder = document.getElementById('alarm-reminder');
-        if (reminder) {
-            reminder.style.display = "flex";
+function stopTimer() {
+    clearInterval(timer);
+    timer = null;
+}
+function checkRestSchedule(timeLeft) {
+    // 1. Mula Rehat: Mist Maker ON + Audio 2
+    if (timeLeft === 299 || timeLeft === 14) { 
+        triggerESP("mistOn");   
+        triggerESP("playAudio2"); 
+    }
+
+    // 2. Audio 3 mula (Main berterusan)
+    if (timeLeft === 270 || timeLeft === 10) { 
+        triggerESP("playAudio3");
+    }
+
+    // 3. Baki 1 Minit Terakhir: Audio 4
+    if (timeLeft === 60 || timeLeft === 5) {
+        triggerESP("playAudio4"); 
+    }
+
+    // --- TAMBAHAN BARU: AUDIO 5 (HANYA PADA SESI 2) ---
+    // Play Audio 5 pada 10 saat terakhir Sesi 2 Rehat
+    if (currentSession === 2 && timeLeft === 10) {
+        triggerESP("playAudio5"); // ESP32 set loop 3x
+    }
+}
+function handleTimerEnd() {
+    if (isStudyMode) {
+        // --- TAMAT SESI BELAJAR (25 MINIT) ---
+        addXP(50);
+        isStudyMode = false;
+        currentTime = restTime; 
+
+        // LOGIK BARU: Jika habis belajar Sesi ke-2
+        if (currentSession === 2) {
+            triggerESP("playAudio5"); // Play Audio 5 (Tanda tamat belajar sejam!)
+        }
+
+        document.getElementById('mode-txt').innerText = "Resting Time 🌸";
+        startTimer(); // Mula rehat
+        
+    } else {
+        // --- TAMAT SESI REHAT (5 MINIT) ---
+        triggerESP("mistOff"); 
+        triggerESP("audioStop");
+        
+        if (currentSession < 2) {
+            currentSession++;
+            alert("Rehat tamat! Masuk Sesi " + currentSession);
+            isStudyMode = true;
+            currentTime = studyTime;
+            document.getElementById('session-count').innerText = "Session: " + currentSession + " / 2";
+            startTimer();
+        } else {
+            // Tamat pusingan penuh (Sesi 2 Rehat Tamat)
+            currentSession = 1;
+            streak++;
+            localStorage.setItem('streak', streak);
+            alert("Tahniah! Awak dah siapkan 1 jam Pomodoro! 🏆");
+            isStudyMode = true;
+            currentTime = studyTime;
+            document.getElementById('session-count').innerText = "Session: 1 / 2";
+            updateUI();
         }
     }
-
-    function dismissAlarm() {
-        const reminder = document.getElementById('alarm-reminder');
-        if (reminder) {
-            reminder.style.display = "none";
-        }
-
-        triggerESP("alarmStop");
-
-        const timerIcon = document.querySelector('.nav-icon');
-        showPage('timer-page', timerIcon);
-
-        startTimer();
+}
+       // --- ALARM SYSTEM DENGAN AUDIO DFPLAYER ---
+setInterval(() => {
+    const alarmInput = document.getElementById('alarm-set');
+    if (!alarmInput) return; // Elak error kalau input tak jumpa
+    
+    const alarmVal = alarmInput.value;
+    if (!alarmVal) return;
+    
+    const now = new Date();
+    const timeNow = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+    
+    // Bila jam sekarang sama dengan jam set alarm dan timer belum jalan
+    if (alarmVal === timeNow && !timer) {
+        showAlarmReminder();
+        
+        // Panggil ESP32 untuk Vibrate + Mainkan Sound 1
+        triggerESP("alarmStart"); 
+        
+        // Kosongkan alarm supaya tak trigger berulang kali pada minit yang sama
+        alarmInput.value = ""; 
     }
+}, 1000);
 
-    function turnOn() {
-        triggerESP("mistOn");
+function showAlarmReminder() {
+    const reminder = document.getElementById('alarm-reminder');
+    if (reminder) {
+        reminder.style.display = "flex";
     }
+}
 
-    function turnOff() {
-        triggerESP("mistOff");
+function dismissAlarm() {
+    // 1. Tutup skrin biru "SAYA SEDIA"
+    const reminder = document.getElementById('alarm-reminder');
+    if (reminder) {
+        reminder.style.display = "none";
     }
+    
+    // 2. Stop ESP32 (Vibrate & DFPlayer Stop)
+    triggerESP("alarmStop");
+    
+    // 3. Pergi ke page timer secara automatik
+    const timerIcon = document.querySelector('.nav-icon');
+    showPage('timer-page', timerIcon);
+    
+    // 4. Terus start timer belajar
+    startTimer();
+}
+ // 1. Pastikan fungsi panggil ESP ini betul sintaksisnya
+function turnOn() {
+    fetch(`http://${ESP_IP}/mistOn`) // Guna backtick (`) dan path mistOn
+        .then(response => console.log("Mist Maker: ON"))
+        .catch(error => console.log("Error: " + error));
+}
 
+function turnOff() {
+    fetch(`http://${ESP_IP}/mistOff`) // Guna backtick (`) dan path mistOff
+        .then(response => console.log("Mist Maker: OFF"))
+        .catch(error => console.log("Error: " + error));
+}
+       
+    
+    // --- DATABASE SOALAN (DAH FIX TYPO) ---
     const questions = {
         bio: [
             {q: "Unit asas kehidupan?", a: ["Sel", "Tisu", "Organ"], c: "Sel"},
@@ -392,19 +415,16 @@ h2, h3, #mode-txt, #timer-display, small {
         chem: [
             {q: "Simbol bagi Oksigen?", a: ["O", "N", "H"], c: "O"},
             {q: "Simbol bagi Emas?", a:["NH3","Ag","Au","Mg"], c:"Au"},
-            {q: "Simbol bagi Air?", a:["H2O","NH3","CH3","HCl"], c:"H2O"},
-            {q: "Simbol bagi Etanol?", a:["CH3","C2H5OH","KMNO4","NaOH"], c:"C2H5OH"}
+            {q: "Simbol bagi Air?", a:["H2O","NH3","CH3","HCl"], c:"H2O"}, // Tukar 'a' kepada 'c'
+            {q: "Simbol bagi Etanol?", a:["CH3","C2H5OH","KMNO4","NaOH"], c:"C2H5OH"} // Tukar 'a' kepada 'c'
         ],
         math: [
-            {q: "5 x 5?", a: ["20", "25", "30"], c: "25"},
-            {q: "3X + 2 = 5 ?", a: ["2","5","1","0"], c: "1"},
-            {q: "2 + 2 ?", a: ["4","2","9"], c: "4"},
-            {q: "4X + 5 = 10 ?", a: ["30","5/4","9"], c: "5/4"}
+            {q: "5 x 5?", a: ["20", "25", "30"], c: "25"},{q:"3X + 2 = 5 ?", a: ["2","5","1","0"], c:"1"},{q:"2 +2 ?", a:["4","2","9"], c:"4"},
+            {q:"4X + 5 = 10 ?", a:["30","5/4","9"], c:"5/4"}
         ],
         fiz: [
-            {q: "Unit bagi Daya?", a: ["Newton", "Watt", "Joule"], c: "Newton"},
-            {q: "Unit bagi kuasa?", a: ["Watt","Newton","joule","Ohm"], c: "Watt"},
-            {q: "F=Ma formula apa ?", a: ["daya","Pecutan","Prinsip Bernouli"], c: "daya"}
+        {q: "Unit bagi Daya?", a: ["Newton", "Watt", "Joule"], c: "Newton"},{q:"Unit bagi kuasa?", a:["Watt","Newton","joule","Ohm"], c:"Watt"},
+        {q:"F=Ma formula apa ?", a:["daya","Pecutan","Prinsip Bernouli"], c:"daya"}
         ]
     };
 
@@ -414,13 +434,15 @@ h2, h3, #mode-txt, #timer-display, small {
         loadQuestion(sub);
     }
 
-    function loadQuestion(sub) {
+   function loadQuestion(sub) {
         const subQuestions = questions[sub];
+        
+        // Pilih soalan secara rawak
         const qData = subQuestions[Math.floor(Math.random() * subQuestions.length)];
-
+        
         document.getElementById('q-text').innerText = qData.q;
         const optDiv = document.getElementById('options');
-        optDiv.innerHTML = "";
+        optDiv.innerHTML = ""; // Bersihkan butang lama
 
         qData.a.forEach(opt => {
             const b = document.createElement('button');
@@ -430,15 +452,18 @@ h2, h3, #mode-txt, #timer-display, small {
                 if (opt.trim() === qData.c.trim()) {
                     alert("Betul! +10 XP ✨");
                     addXP(10);
-                    loadQuestion(sub);
+                    // PANGGIL SOALAN SETERUSNYA SECARA TERUS
+                    loadQuestion(sub); 
                 } else {
                     alert("Salah! Jawapan betul: " + qData.c);
+                    // TETAP TERUSKAN KE SOALAN SETERUSNYA
                     loadQuestion(sub);
                 }
             };
             optDiv.appendChild(b);
         });
 
+        // Tambah butang "QUIT" kecil kat bawah pilihan supaya boleh keluar bila-bila masa
         const quitBtn = document.createElement('button');
         quitBtn.innerText = "Tamat Kuiz";
         quitBtn.style = "margin-top:20px; background:none; border:none; color:#ff4757; cursor:pointer; font-size:0.8rem; text-decoration:underline;";
@@ -447,10 +472,11 @@ h2, h3, #mode-txt, #timer-display, small {
     }
 
     function exitQuiz() {
+        // Fungsi ini hanya dipanggil bila tekan butang "Tamat Kuiz"
         document.getElementById('subject-menu').style.display = 'block';
         document.getElementById('quiz-area').style.display = 'none';
     }
-
+    // --- STATS & XP SYSTEM ---
     function addXP(amount) {
         xp += amount;
         localStorage.setItem('xp', xp);
@@ -483,6 +509,6 @@ h2, h3, #mode-txt, #timer-display, small {
         btn.classList.add('active');
     }
 
+    // Panggil updateUI masa mula untuk display data lama
     updateUI();
-    updateTimerDisplay();
 </script>
