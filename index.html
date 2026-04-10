@@ -189,15 +189,9 @@ h2, h3, #mode-txt, #timer-display, small {
     </div>
 
     <div style="margin-top: 30px;">
-    <button class="btn" onclick="startTimer()">START</button>
-    <button class="btn btn-stop" onclick="stopTimer()">STOP</button>
-    <button class="btn" onclick="triggerESP('mistOn')">Mist ON</button>
-    <button class="btn" onclick="triggerESP('mistOff')">Mist OFF</button>
-    <button class="btn" onclick="triggerESP('playAudio1')">Play Audio 1</button>
-    <button class="btn" onclick="triggerESP('playAudio2')">Play Audio 2</button>
-    <button class="btn" onclick="triggerESP('audioStop')">Stop Audio</button>
-  <button class="btn" onclick="triggerESP('vibrateOn')">Vibrate ON</button>
-  <button class="btn" onclick="triggerESP('vibrateOff')">Vibrate OFF</button>
+        <button class="btn" onclick="startTimer()">START</button>
+        <button class="btn btn-stop" onclick="stopTimer()">STOP</button>
+    </div>
 </div>
 
         <div id="game-page" class="page">
@@ -232,17 +226,22 @@ h2, h3, #mode-txt, #timer-display, small {
     <p style="color: #2d5a7a; font-size: 1.2rem; margin-bottom: 30px;">Jom mula sekarang! ✨</p>
     <button class="btn" onclick="dismissAlarm()" style="background: white !important; color: #00b4d8 !important; padding: 15px 40px; font-size: 1.2rem;">SAYA SEDIA! ✨</button>
 </div>
-
     <script>
         // 4. JAVASCRIPT: LOGIK APP
         
-        // --- SETTINGS ESP32 (Ganti dengan IP ESP kau) ---
-       
+       // --- SETTINGS ESP32 ---
+const ESP_IP = "172.20.10.12"; 
 
+function triggerESP(path) {
+    console.log("Triggering: " + path);
+    fetch(`http://${ESP_IP}/${path}`)
+        .then(response => console.log("ESP Response OK"))
+        .catch(err => console.error("ESP Offline atau Error: ", err));
+} // <--- SEBELUM NI AWAK TERLEPAS KURUNGAN INI
         // --- DATA & STATE ---
         // Gantikan bahagian data state awak dengan ini sahaja
-let studyTime = 20; // Untuk test (asal 1500)
-let restTime = 50;  // Untuk test (asal 300)
+let studyTime = 60; // Untuk test (asal 1500)
+let restTime = 45;  // Untuk test (asal 300)
 let currentTime = studyTime;
 let isStudyMode = true;
 let timer = null;
@@ -287,26 +286,26 @@ function stopTimer() {
     timer = null;
 }
 function checkRestSchedule(timeLeft) {
-    // 1. Mula Rehat: Mist Maker ON + Audio 2
-    if (timeLeft === 299 || timeLeft === 14) { 
+    // 1. Mula Rehat: ON Mist Maker + Audio 2 (Bila baki masa rehat sama dengan (Total Masa Rehat - 1))
+    if (timeLeft === (restTime - 1)) { 
+        console.log("Mist ON triggered!"); // Untuk debug kat console browser
         triggerESP("mistOn");   
         triggerESP("playAudio2"); 
     }
 
-    // 2. Audio 3 mula (Main berterusan)
-    if (timeLeft === 270 || timeLeft === 10) { 
+    // 2. Audio 3 (Main bila baki tinggal 30 saat, atau kalau rehat pendek, baki tinggal 20 saat)
+    if (timeLeft === 20) {  
         triggerESP("playAudio3");
     }
 
-    // 3. Baki 1 Minit Terakhir: Audio 4
-    if (timeLeft === 60 || timeLeft === 5) {
+    // 3. Baki 10 saat terakhir: Audio 4 (Persediaan masuk belajar balik)
+    if (timeLeft === 10) {
         triggerESP("playAudio4"); 
     }
 
-    // --- TAMBAHAN BARU: AUDIO 5 (HANYA PADA SESI 2) ---
-    // Play Audio 5 pada 10 saat terakhir Sesi 2 Rehat
-    if (currentSession === 2 && timeLeft === 10) {
-        triggerESP("playAudio5"); // ESP32 set loop 3x
+    // 4. Sesi 2 Rehat Tamat (Vibration/Audio 5)
+    if (currentSession === 2 && timeLeft === 5) {
+        triggerESP("playAudio5"); 
     }
 }
 function handleTimerEnd() {
@@ -380,30 +379,35 @@ function showAlarmReminder() {
 }
 
 function dismissAlarm() {
-    // 1. Tutup skrin biru "SAYA SEDIA"
+    // 1. Hentikan sebarang timer yang mungkin tengah 'hang'
+    stopTimer();
+
+    // 2. Tutup skrin biru "SAYA SEDIA"
     const reminder = document.getElementById('alarm-reminder');
     if (reminder) {
         reminder.style.display = "none";
     }
     
-    // 2. Stop ESP32 (Vibrate & DFPlayer Stop)
+    // 3. PANGGIL ESP UNTUK STOP VIBRATION & AUDIO SEKARANG
+    console.log("Menghantar arahan stop ke ESP...");
     triggerESP("alarmStop");
     
-    // 3. Pergi ke page timer secara automatik
+    // 4. Pergi ke page timer
     const timerIcon = document.querySelector('.nav-icon');
     showPage('timer-page', timerIcon);
     
-    // 4. Terus start timer belajar
-    startTimer();
+    // 5. Reset masa ke masa belajar (60 saat untuk test)
+    isStudyMode = true;
+    currentTime = studyTime; 
+    updateTimerDisplay();
+    
+    // 6. Mula timer belajar secara automatik
+    setTimeout(() => {
+        startTimer();
+    }, 500); // Delay 0.5 saat supaya ESP sempat proses 'alarmStop' sebelum 'startTimer'
 }
-const ESP_IP = "172.20.10.12";
-function triggerESP(path) {
-  fetch('http://${ESP_IP}/${path}')
-    .then(response => response.text())
-    .then(data => console.log("ESP:", data))
-    .catch(error => console.log("ESP Error:", error));
-
-}
+  
+       
     
     // --- DATABASE SOALAN (DAH FIX TYPO) ---
     const questions = {
